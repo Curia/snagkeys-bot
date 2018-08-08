@@ -19,11 +19,9 @@ client.on('ready', () => {
 
 // Create an event listener for messages
 client.on('message', message => {
-    console.log(`message sent in ${message.channel}`)
-
     switch(message.content.toLowerCase()) {
         case `${config.prefix}destroy`:
-            closeBot(message.channel, message.author);
+            closeBot(message);
             break;
     }
 });
@@ -39,10 +37,25 @@ const listChannels = () => {
 }
 
 
-const closeBot = (channel, author) => {
-    channel.send('Beep boop, shutting down....')
+const closeBot = (message) => {
+    logCommand(message)
+    message.channel.send('Beep boop, shutting down....')
     .then(msg => client.destroy())
-    .then(console.log(`Bot shutdown @ ${new Date()} by ${author.username} : #${author.id}`))
+}
+
+const logCommand = (message) => {
+    console.log(`Command "${message.content}" sent by ${message.author.username}:#${message.author.id} @ ${new Date()} in channel ${message.channel}`);
+}
+
+const getUserRole = (message) => {
+    let allowed = false;
+
+    logCommand(message)
+    for (let role in config.roles) {
+        message.member.roles.find('name', config.roles[role])
+            allowed = true;
+    }
+    return allowed
 }
 
 // Log our bot in
