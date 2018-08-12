@@ -1,5 +1,5 @@
-// Load up the discord.js library
 const Discord = require("discord.js");
+const moment = require("moment");
 
 // This is your client.
 const client = new Discord.Client();
@@ -19,9 +19,12 @@ client.on('ready', () => {
 
 // Create an event listener for messages
 client.on('message', message => {
-    switch(message.content.toLowerCase()) {
+    switch(message.content) {
         case `${config.prefix}destroy`:
             closeBot(message);
+            break;
+        case `${config.prefix}prune`:
+            pruneMarket(message);
             break;
     }
 });
@@ -36,6 +39,25 @@ const listChannels = () => {
     });
 }
 
+const pruneMarket = (message) => {
+    const pruneDate = moment().subtract(config.pruneDays, 'days');
+    let msgCollection = [];
+
+    message.channel.fetchMessages()
+        .then(messages => {
+            let msgArr = messages.array();
+            
+            msgCollection = msgArr.filter(msg => {
+                const timeStamp = msg.editedTimestamp === null ? moment(msg.createdAt) : moment(msg.editedTimestamp)
+                if (pruneDate > timeStamp) {
+                    return msg;
+                }
+            })
+        })
+        .then(e => message.channel.bulkDelete(msgCollection, true))
+        .catch(console.error);
+        message.delete();
+}
 
 const closeBot = (message) => {
     logCommand(message)
