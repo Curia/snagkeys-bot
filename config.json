@@ -1,7 +1,8 @@
-{ 
+{
     "token": "NDc2NjI1NjQ0OTk4ODg1Mzc2.DkwVEg.5eIzIW6kThAfcfolZYg5B7pzcIc",
     "prefix": "/",
-    "pruneDays": 1,
+    "pruneAmount": 1,
+    "channels": ["476635677937762336"],
     "roles": [
         "DoD",
         "AFP"
