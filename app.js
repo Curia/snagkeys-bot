@@ -5,13 +5,13 @@ const client = new Discord.Client();
 const config = require("./config.json");
 
 client.on('ready', () => {
-    console.log(`Bot initiated! \n`);
+    console.log(`${moment()} : Snagbot started\n`);
 });
 
 client.on('message', message => {
     
     // Dirty way to only allow users in config.roles list to execute commands.
-    if (authUser()) return false;
+    if (!authUser(message)) return false;
     logInput(message);
 
     switch (message.content) {
@@ -23,6 +23,9 @@ client.on('message', message => {
         case `${config.prefix}prune`:
             pruneMarket(message);
             break;
+        case `${config.prefix}listings`:
+            checkListings(message);
+            break;
     }
 });
 
@@ -31,14 +34,22 @@ const listChannels = () => {
 
     console.log(`Channels avaliable: \n`);
     chanList.map(c => {
-        console.log(`${c.id}`)
-        console.log(`  Name: ${c.name} \n`)
+        console.log(`${c.id}\n  Name: ${c.name} \n`)
     });
 }
 
 const checkListings = (message) => {
     const user = message.author;
     const channel = message.channel;
+
+    if(config.channels.find(c => {return c == channel.id })) {
+        channel.fetchMessages({ limit: 100 })
+        .then(messages => {
+            const filtered = messages.filter(msg => msg.author.id === user.id);
+            console.log(`Filtered ${filtered.size} messages`)
+        })
+        .catch(console.error);
+    }
 }
 
 const pruneMarket = (message) => {
@@ -56,7 +67,10 @@ const pruneMarket = (message) => {
                 }
             })
         })
-        .then(e => message.channel.bulkDelete(msgCollection, true))
+        .then(() => {
+            console.log(`${moment()} : Deleting ${msgCollection.length} messages`)
+            message.channel.bulkDelete(msgCollection, false)
+        })
         .catch(console.error);
     message.delete();
 }
@@ -68,14 +82,15 @@ const shutdown = (message) => {
 }
 
 const logInput = (message) => {
-    console.log(`Command "${message.content}" sent by ${message.author.username}:#${message.author.id} @ ${new Date()} in channel ${message.channel}`);
+    console.log(`${moment()} : "${message.content}" sent by ${message.author.username}:#${message.author.id} in channel ${message.channel}`);
 }
 
 const authUser = (message) => {
+    const user = message.member;
     let allowed = false;
 
     for (let role in config.roles) {
-        message.member.roles.find('name', config.roles[role])
+        user.roles.find('name', config.roles[role])
         allowed = true;
     }
     return allowed;
