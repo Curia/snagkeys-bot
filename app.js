@@ -9,7 +9,7 @@ client.on('ready', () => {
 });
 
 client.on('message', message => {
-    
+
     // Dirty way to only allow users in config.roles list to execute commands.
     if (!authUser(message)) return false;
     logInput(message);
@@ -19,11 +19,9 @@ client.on('message', message => {
         case `${config.prefix}shutdown`:
             shutdown(message);
             break;
-        // Removes old listings from market channels
+            // Cleanup the ad channel
         case `${config.prefix}prune`:
             pruneMarket(message);
-            break;
-        case `${config.prefix}listings`:
             checkListings(message);
             break;
     }
@@ -38,17 +36,38 @@ const listChannels = () => {
     });
 }
 
+const updateMarketRules = (channel) => {
+    channel.fetchMessages({
+        limit: 100
+    })
+    .then(messages => {
+        const filtered = messages.filter(msg => msg.author.id === config.botId);
+        channel.bulkDelete(filtered, false)
+    })
+    .catch(console.error);
+    channel.send(`**Market Rules**\n    - One ad per user\n    - Posting new ads will remove your previous ads\n    - Provide photo of item\n    - Please remove your post once sale is made\n\n Any bugs with the bot, PM <@${config.authorId}>`)
+};
+
 const checkListings = (message) => {
     const user = message.author;
     const channel = message.channel;
 
-    if(config.channels.find(c => {return c == channel.id })) {
-        channel.fetchMessages({ limit: 100 })
-        .then(messages => {
-            const filtered = messages.filter(msg => msg.author.id === user.id);
-            console.log(`Filtered ${filtered.size} messages`)
-        })
-        .catch(console.error);
+    if (config.channels.find(c => {
+            return c == channel.id
+        })) {
+        channel.fetchMessages({
+                limit: 100
+            })
+            // Get the messages
+            .then(messages => {
+                // Filter to only get the commenting users messages
+                const filtered = messages.filter(msg => msg.author.id === user.id && msg.id !== message.id);
+                console.log(`${moment()} : User ${user.username}:${user.id} already has ${filtered.size} posts`)
+                console.log(`${moment()} : Deleting ${filtered.size} old posts`)
+                message.channel.bulkDelete(filtered, false)
+            })
+            .catch(console.error);
+            updateMarketRules(channel)
     }
 }
 
@@ -76,7 +95,7 @@ const pruneMarket = (message) => {
 }
 
 const shutdown = (message) => {
-    
+
     message.channel.send('Beep boop, shutting down....')
         .then(msg => client.destroy())
 }
