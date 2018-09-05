@@ -9,9 +9,17 @@ client.on('ready', () => {
 });
 
 client.on('message', message => {
-
-    // Dirty way to only allow users in config.roles list to execute commands.
-    if (!authUser(message)) return false;
+    // Ignore if bot or no auth
+    if(message.author.bot) return;
+    checkListings(message);
+    // Ignore if bot or no auth
+    if(!authUser(message)) return;
+    // Ensure bot only reacts in a valid channel
+    if (! config.channels.find(c => {
+            return c == message.channel.id
+        })) {
+            return false;
+    }
     logInput(message);
 
     switch (message.content) {
@@ -42,9 +50,10 @@ const updateMarketRules = (channel) => {
     })
     .then(messages => {
         const filtered = messages.filter(msg => msg.author.id === config.botId);
-        channel.bulkDelete(filtered, false)
+        channel.bulkDelete(filtered, true)
     })
     .catch(console.error);
+    
     channel.send(`**Market Rules**\n    - One ad per user\n    - Posting new ads will remove your previous ads\n    - Provide photo of item\n    - Please remove your post once sale is made\n\n Any bugs with the bot, PM <@${config.authorId}>`)
 };
 
@@ -85,8 +94,6 @@ const pruneMarket = (message) => {
                     return msg;
                 }
             })
-        })
-        .then(() => {
             console.log(`${moment()} : Deleting ${msgCollection.length} messages`)
             message.channel.bulkDelete(msgCollection, false)
         })
