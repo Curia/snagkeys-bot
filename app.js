@@ -16,23 +16,24 @@ client.on('message', message => {
     // Ensure bot only reacts in a valid channel
     if (config.channels.find(c => c == message.channel.id)) {
         checkListings(message);
+
+        // Respond to allowed roles only
+        if (authUser(message)) {
+            logInput(message);
+
+            switch (message.content) {
+                // Force shutdown bot
+                case `${config.prefix}shutdown`:
+                    shutdown(message);
+                    break;
+                    // Cleanup the ad channel
+                case `${config.prefix}prune`:
+                    pruneMarket(message);
+                    break;
+            }
+        };
     }
 
-    // Respond to allowed roles only
-    if (authUser(message)) {
-        logInput(message);
-
-        switch (message.content) {
-            // Force shutdown bot
-            case `${config.prefix}shutdown`:
-                shutdown(message);
-                break;
-                // Cleanup the ad channel
-            case `${config.prefix}prune`:
-                pruneMarket(message);
-                break;
-        }
-    };
 });
 
 const listChannels = () => {
@@ -59,13 +60,15 @@ const updateMarketRules = (channel) => {
         })
         .catch(console.error);
 
-    channel.send({embed});
+    channel.send({
+        embed
+    });
 };
 
 const notifyUser = (user, channel, message) => {
     user.send(`An old ad from ${channel} was removed since you posted a new one. \nContents of the old ad are below \`\`\` ${message} \`\`\`If you think this is a mistake, PM the bot author: <@${config.authorId}>`)
-            .then(message => console.log(`Sent message: ${message.content}`))
-            .catch(console.error);
+        .then(message => console.log(`Sent message: ${message.content}`))
+        .catch(console.error);
 }
 
 const checkListings = (message) => {
@@ -84,9 +87,13 @@ const checkListings = (message) => {
                 const filtered = messages.filter(msg => msg.author.id === user.id && msg.id !== message.id);
                 const lastAd = filtered.last()
                 console.log(`${moment()} : User ${user.username}:${user.id} already has ${filtered.size} posts`)
-                console.log(`${moment()} : Deleting ${filtered.size} old posts`)
-                notifyUser(user, channel, lastAd.content)
-                message.channel.bulkDelete(filtered, false)
+
+                if (filtered.size > 0) {
+                    console.log(`${moment()} : Deleting ${filtered.size} old posts`)
+                    message.channel.bulkDelete(filtered, false)
+                    notifyUser(user, channel, lastAd.content)
+                }
+
             })
             .catch(console.error);
 
@@ -129,8 +136,9 @@ const authUser = (message) => {
     let allowed = false;
 
     for (let role in config.roles) {
-        user.roles.find('name', config.roles[role])
-        allowed = true;
+        if (user.roles.find('name', config.roles[role])) {
+            allowed = true;
+        }
     }
     return allowed;
 }
