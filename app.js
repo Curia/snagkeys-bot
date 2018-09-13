@@ -15,7 +15,6 @@ client.on('message', message => {
 
     // Ensure bot only reacts in a valid channel
     if (config.channels.find(c => c == message.channel.id)) {
-        checkListings(message);
 
         // Respond to allowed roles only
         if (authUser(message)) {
@@ -30,7 +29,11 @@ client.on('message', message => {
                 case `${config.prefix}prune`:
                     pruneMarket(message);
                     break;
+                default:
+                    checkListings(message);
             }
+        } else {
+            checkListings(message);
         };
     }
 
