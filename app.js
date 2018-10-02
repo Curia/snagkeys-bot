@@ -52,7 +52,7 @@ const updateMarketRules = (channel) => {
     const embed = new Discord.RichEmbed()
         .setTitle("***Market rules***")
         .setColor(0x00AE86)
-        .setDescription(`- One ad per user\n    - Posting new ads will remove your previous ads\n    - Provide photo of item if possible\n    - Please remove your post once sale is made\n - Ads older than two weeks will be removed automatically\n\n Any bugs with the bot, PM <@${config.authorId}>`);
+        .setDescription(`- One ad per user\n   - Prices are in AUD unless specified otherwise\n - Posting new ads will remove your previous ads\n    - Provide photo of item if possible\n    - Please remove your post once sale is made\n - Ads older than two weeks will be removed automatically\n\n Any bugs with the bot, PM <@${config.authorId}>`);
 
     channel.fetchMessages({
             limit: 100
