@@ -1,12 +1,9 @@
 {
     "token": "",
-    "prefix": "/",
+    "prefix": "/bot ",
     "authorId": "",
     "botId": "",
-    "pruneAmount": 14,
-    "channels": ["476635677937762336"],
-    "roles": [
-        "DoD",
-        "AFP"
-    ]
+    "pruneDays": 14,
+    "channels": [],
+    "roles": []
 }

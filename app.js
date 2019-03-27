@@ -4,6 +4,9 @@ const moment = require("moment");
 const client = new Discord.Client();
 const config = require("./config.json");
 
+// Functions
+const market = require('./market/prune');
+
 client.on('ready', () => {
     console.log(`${moment()} : Snagbot started\n`);
     listChannels();
@@ -27,13 +30,13 @@ client.on('message', message => {
                     break;
                     // Cleanup the ad channel
                 case `${config.prefix}prune`:
-                    pruneMarket(message);
+                    market.pruneMarket(message);
                     break;
                 default:
-                    checkListings(message);
+                    //checkListings(message);
             }
         } else {
-            checkListings(message);
+            //checkListings(message);
         };
     }
 
@@ -102,27 +105,6 @@ const checkListings = (message) => {
 
         updateMarketRules(channel)
     }
-}
-
-const pruneMarket = (message) => {
-    const pruneDate = moment().subtract(config.pruneAmount, 'days');
-    let msgCollection = [];
-
-    message.channel.fetchMessages()
-        .then(messages => {
-            let msgArr = messages.array();
-
-            msgCollection = msgArr.filter(msg => {
-                const timeStamp = msg.editedTimestamp === null ? moment(msg.createdAt) : moment(msg.editedTimestamp)
-                if (pruneDate > timeStamp) {
-                    return msg;
-                }
-            })
-            console.log(`${moment()} : Deleting ${msgCollection.length} messages`)
-            message.channel.bulkDelete(msgCollection, false)
-        })
-        .catch(console.error);
-    message.delete();
 }
 
 const shutdown = (message) => {
