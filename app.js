@@ -5,7 +5,7 @@ const client = new Discord.Client();
 const config = require("./config.json");
 
 // Functions
-const market = require('./market/prune');
+const market = require('./functions/market');
 
 client.on('ready', () => {
     console.log(`${moment()} : Snagbot started\n`);
