@@ -1,16 +1,26 @@
-const Discord = require("discord.js");
-const moment = require("moment");
+const Discord = require('discord.js');
+const moment = require('moment');
+const SimpleNodeLogger = require('simple-node-logger');
 
 const client = new Discord.Client();
-const config = require("./config.json");
+const config = require('./config.json');
 
 // Functions
 const market = require('./functions/market');
 const auth = require('./functions/auth');
 
+const logOpts = {
+    logFilePath: './log.txt',
+    timestampFormat: 'YYYY-MM-DD HH:mm:ss.SSS'
+};
+const log = SimpleNodeLogger.createSimpleLogger(logOpts);
+
 client.on('ready', () => {
-    console.log(`${moment()} : Snagbot started\n`);
-    listChannels();
+    log.info(`Bot logged in`);
+    console.log(`Channels avaliable:`);
+    client.channels.map(c => {
+        console.log(` - ${c.name}:${c.id}`);
+    });
 });
 
 client.on('message', message => {
@@ -22,12 +32,14 @@ client.on('message', message => {
 
         // Respond to allowed roles only
         if (auth.userIsAdmin(message)) {
-            logInput(message);
+            log.info(`${message.author.username}:${message.author.id}, "${message.content}", ${message.channel}`);
 
             switch (message.content) {
                 // Force shutdown bot
                 case `${config.prefix}shutdown`:
-                    shutdown(message);
+                    log.warn(`shutdown by ${message.author.username}:${message.author.id}`)
+                    message.delete();
+                    client.destroy()
                     break;
                     // Cleanup the ad channel
                 case `${config.prefix}prune`:
@@ -42,24 +54,6 @@ client.on('message', message => {
     }
 
 });
-
-const listChannels = () => {
-    const chanList = client.channels;
-
-    console.log(`Channels avaliable:`);
-    chanList.map(c => {
-        console.log(` - ${c.name}:${c.id}`);
-    });
-}
-
-const shutdown = (message) => {
-    message.channel.send('Beep boop, shutting down....')
-        .then(msg => client.destroy())
-}
-
-const logInput = (message) => {
-    console.log(`${moment()} : "${message.content}" sent by ${message.author.username}:#${message.author.id} in channel ${message.channel}`);
-}
 
 // Log our bot in
 client.login(config.token);
