@@ -6,6 +6,7 @@ const config = require("./config.json");
 
 // Functions
 const market = require('./functions/market');
+const auth = require('./functions/auth');
 
 client.on('ready', () => {
     console.log(`${moment()} : Snagbot started\n`);
@@ -20,7 +21,7 @@ client.on('message', message => {
     if (config.channels.find(c => c == message.channel.id)) {
 
         // Respond to allowed roles only
-        if (authUser(message)) {
+        if (auth.userIsAdmin(message)) {
             logInput(message);
 
             switch (message.content) {
@@ -33,10 +34,10 @@ client.on('message', message => {
                     market.pruneMarket(message);
                     break;
                 default:
-                    //checkListings(message);
+                    market.checkListings(message);
             }
         } else {
-            //checkListings(message);
+            market.checkListings(message);
         };
     }
 
@@ -77,36 +78,6 @@ const notifyUser = (user, channel, message) => {
         .catch(console.error);
 }
 
-const checkListings = (message) => {
-    const user = message.author;
-    const channel = message.channel;
-
-    if (config.channels.find(c => {
-            return c == channel.id
-        })) {
-        channel.fetchMessages({
-                limit: 100
-            })
-            // Get the messages
-            .then(messages => {
-                // Filter to only get the commenting users messages
-                const filtered = messages.filter(msg => msg.author.id === user.id && msg.id !== message.id);
-                const lastAd = filtered.last()
-                console.log(`${moment()} : User ${user.username}:${user.id} already has ${filtered.size} posts`)
-
-                if (filtered.size > 0) {
-                    console.log(`${moment()} : Deleting ${filtered.size} old posts`)
-                    message.channel.bulkDelete(filtered, false)
-                    notifyUser(user, channel, lastAd.content)
-                }
-
-            })
-            .catch(console.error);
-
-        updateMarketRules(channel)
-    }
-}
-
 const shutdown = (message) => {
     message.channel.send('Beep boop, shutting down....')
         .then(msg => client.destroy())
@@ -114,18 +85,6 @@ const shutdown = (message) => {
 
 const logInput = (message) => {
     console.log(`${moment()} : "${message.content}" sent by ${message.author.username}:#${message.author.id} in channel ${message.channel}`);
-}
-
-const authUser = (message) => {
-    const user = message.member;
-    let allowed = false;
-
-    for (let role in config.roles) {
-        if (user.roles.find('name', config.roles[role])) {
-            allowed = true;
-        }
-    }
-    return allowed;
 }
 
 // Log our bot in
