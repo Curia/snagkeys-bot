@@ -40,9 +40,27 @@ const checkListings = (post) => {
             }
         })
         .catch(console.error);
+    updateRules(channel);
 }
+
+const updateRules = (channel) => {
+    const embed = new Discord.RichEmbed()
+        .setTitle("***Market rules***")
+        .setColor(0x00AE86)
+        .setDescription(`- One ad per user\n   - All prices in AUD unless specified otherwise\n    - Provide photo of item if possible\n - Ads older than two weeks will be removed automatically\n Bugs or comments, PM <@${config.authorId}>`);
+
+    channel.fetchMessages({ limit: 100 })
+        .then(messages => {
+            const filtered = messages.filter(msg => msg.author.id === config.botId);
+            channel.bulkDelete(filtered, true)
+        })
+        .catch(console.error);
+
+    channel.send({ embed });
+};
 
 module.exports = {
     pruneMarket: pruneMarket,
-    checkListings: checkListings
+    checkListings: checkListings,
+    updateRules: updateRules
 }

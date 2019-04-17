@@ -52,26 +52,6 @@ const listChannels = () => {
     });
 }
 
-const updateMarketRules = (channel) => {
-    const embed = new Discord.RichEmbed()
-        .setTitle("***Market rules***")
-        .setColor(0x00AE86)
-        .setDescription(`- One ad per user\n   - Prices are in AUD unless specified otherwise\n - Posting new ads will remove your previous ads\n    - Provide photo of item if possible\n    - Please remove your post once sale is made\n - Ads older than two weeks will be removed automatically\n\n Any bugs with the bot, PM <@${config.authorId}>`);
-
-    channel.fetchMessages({
-            limit: 100
-        })
-        .then(messages => {
-            const filtered = messages.filter(msg => msg.author.id === config.botId);
-            channel.bulkDelete(filtered, true)
-        })
-        .catch(console.error);
-
-    channel.send({
-        embed
-    });
-};
-
 const notifyUser = (user, channel, message) => {
     user.send(`An old ad from ${channel} was removed since you posted a new one. \nContents of the old ad are below \`\`\` ${message} \`\`\`If you think this is a mistake, PM the bot author: <@${config.authorId}>`)
         .then(message => console.log(`Sent message: ${message.content}`))
