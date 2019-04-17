@@ -46,16 +46,10 @@ client.on('message', message => {
 const listChannels = () => {
     const chanList = client.channels;
 
-    console.log(`Channels avaliable: \n`);
+    console.log(`Channels avaliable:`);
     chanList.map(c => {
-        console.log(`${c.id}\n  Name: ${c.name} \n`)
+        console.log(` - ${c.name}:${c.id}`);
     });
-}
-
-const notifyUser = (user, channel, message) => {
-    user.send(`An old ad from ${channel} was removed since you posted a new one. \nContents of the old ad are below \`\`\` ${message} \`\`\`If you think this is a mistake, PM the bot author: <@${config.authorId}>`)
-        .then(message => console.log(`Sent message: ${message.content}`))
-        .catch(console.error);
 }
 
 const shutdown = (message) => {

@@ -38,6 +38,9 @@ const checkListings = (post) => {
                 console.log(`Removing additional ads from ${user.username}:${user.id}`);
                 post.channel.bulkDelete(filtered, false);
             }
+
+            // Send a copy of old ad to user
+            notifyUser(user, channel, filtered.last())
         })
         .catch(console.error);
     updateRules(channel);
@@ -59,8 +62,16 @@ const updateRules = (channel) => {
     channel.send({ embed });
 };
 
+const notifyUser = (user, channel, message) => {
+    const messageStr = message.content.replace(/`/g, '');
+
+    user.send(`An old ad from ${channel} was removed since you posted a new one. \nContents of the old ad are below \`\`\` ${messageStr} \`\`\`If you think this is a mistake, PM the bot author: <@${config.authorId}>`)
+        .catch(console.error);
+}
+
 module.exports = {
     pruneMarket: pruneMarket,
     checkListings: checkListings,
-    updateRules: updateRules
+    updateRules: updateRules,
+    notifyUser: notifyUser
 }
