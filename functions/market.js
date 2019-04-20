@@ -19,8 +19,8 @@ const pruneMarket = (msg) => {
             limit: 99
         });
         // Short timer for testing purposes
-        const pruneDate = moment().clone().subtract('30', 'seconds');
-        //const pruneDate = moment().clone().subtract(config.pruneDays, 'days').startOf('day');
+        //const pruneDate = moment().clone().subtract('30', 'seconds');
+        const pruneDate = moment().clone().subtract(config.pruneDays, 'days').startOf('day');
         const filtered = fetched.filter(message => moment(message.createdTimestamp).isBefore(pruneDate));
 
         log.info(`Pruning ${filtered.size} messages`);
