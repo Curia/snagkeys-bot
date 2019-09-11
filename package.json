@@ -1,0 +1,25 @@
+{
+  "name": "snagkeys-bot",
+  "version": "1.0.0",
+  "description": "Basic Discord bot to help manage simple admin tasks for AU Mechanical keyboard channel.",
+  "main": "app.js",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "moment": "^2.24.0",
+    "simple-node-logger": "^18.12.23"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Curia/snagkeys-bot.git"
+  },
+  "author": "Adam Phillips",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Curia/snagkeys-bot/issues"
+  },
+  "homepage": "https://github.com/Curia/snagkeys-bot#readme"
+}

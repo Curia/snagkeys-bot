@@ -46,10 +46,12 @@ client.on('message', message => {
                     market.pruneMarket(message);
                     break;
                 default:
-                    market.checkListings(message);
+                    //market.checkListings(message);
+                    market.updateRules(message.channel);
             }
         } else {
-            market.checkListings(message);
+            //market.checkListings(message);
+            market.updateRules(message.channel);
         };
     }
 
