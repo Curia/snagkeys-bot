@@ -42,9 +42,6 @@ client.on('message', message => {
                     client.destroy()
                     break;
                     // Cleanup the ad channel
-                case `${config.prefix}prune`:
-                    market.pruneMarket(message);
-                    break;
                 default:
                     //market.checkListings(message);
                     market.updateRules(message.channel);
