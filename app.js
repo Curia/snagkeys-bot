@@ -32,7 +32,6 @@ client.on('message', message => {
 
         // Respond to allowed roles only
         if (auth.userIsAdmin(message)) {
-            log.info(`${message.author.username}:${message.author.id}, "${message.content}", ${message.channel}`);
 
             switch (message.content) {
                 // Force shutdown bot
@@ -43,12 +42,12 @@ client.on('message', message => {
                     break;
                     // Cleanup the ad channel
                 default:
-                    //market.checkListings(message);
-                    market.updateRules(message.channel);
+                    market.checkListings(message);
+                    //market.updateRules(message.channel);
             }
         } else {
-            //market.checkListings(message);
-            market.updateRules(message.channel);
+            market.checkListings(message);
+            //market.updateRules(message.channel);
         };
     }
 
