@@ -3,7 +3,9 @@
     "prefix": "/bot ",
     "authorId": "",
     "botId": "",
-    "pruneDays": 14,
+    "pruneDays": 13,
     "channels": [],
-    "roles": []
+    "roles": [],
+    "currency": "USD"
 }
+
