@@ -47,7 +47,7 @@ const updateRules = (channel) => {
   const embed = new Discord.RichEmbed()
     .setTitle("***Market rules***")
     .setColor(0x00AE86)
-    .setDescription(`- One ad per user\n   - All prices in AUD unless specified otherwise\n    - Provide photo of item if possible\n Bugs or comments, PM <@${config.authorId}>`);
+    .setDescription(`- One ad per user\n   - All prices in ${config.currency} unless specified otherwise\n    - Provide photo of item if possible\n Bugs or comments, PM <@${config.authorId}>`);
 
   // Remove old rule posting and resend it
   channel.fetchMessages().then(msg => {
@@ -59,9 +59,19 @@ const updateRules = (channel) => {
 
 const notifyUser = (user, channel, message) => {
   const messageStr = message.content.replace(/`/g, '');
+  if (message.attachments.size) {
+    const attachments = message.attachments.array()[0];
+    user.send(`An old ad from ${channel} was removed since you posted a new one. \nContents of the old ad are below \`\`\` ${messageStr} \`\`\`If you think this is a mistake, PM the bot author: <@${config.authorId}>`, {
+      files: [{
+        attachment: attachments.proxyURL,
+      }]
+    })
+      .catch(error => { log.error(error) });
+  } else {
+    user.send(`An old ad from ${channel} was removed since you posted a new one. \nContents of the old ad are below \`\`\` ${messageStr} \`\`\`If you think this is a mistake, PM the bot author: <@${config.authorId}>`)
+      .catch(error => { log.error(error) });
+  }
 
-  user.send(`An old ad from ${channel} was removed since you posted a new one. \nContents of the old ad are below \`\`\` ${messageStr} \`\`\`If you think this is a mistake, PM the bot author: <@${config.authorId}>`)
-    .catch(error => { log.error(error) });
 }
 
 module.exports = {
